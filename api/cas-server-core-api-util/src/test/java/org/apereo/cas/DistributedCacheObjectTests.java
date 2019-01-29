@@ -1,9 +1,9 @@
 package org.apereo.cas;
 
 import lombok.val;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 /**
  * This is {@link DistributedCacheObjectTests}.

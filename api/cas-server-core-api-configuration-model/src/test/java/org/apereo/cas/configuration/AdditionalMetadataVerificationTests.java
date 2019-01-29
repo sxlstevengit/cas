@@ -7,29 +7,36 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.configurationmetadata.ConfigurationMetadataProperty;
 import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
 import org.springframework.boot.context.properties.source.InvalidConfigurationPropertyNameException;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
+import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.io.IOException;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 /**
  * Test additional metadata validity.
  *
  * @since 6.0
  */
-@SpringBootTest(classes = AopAutoConfiguration.class)
 @Slf4j
 public class AdditionalMetadataVerificationTests {
+
+    @ClassRule
+    public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
+
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -43,9 +50,7 @@ public class AdditionalMetadataVerificationTests {
      */
     @Test
     public void verifyMetaData() throws IOException {
-        val additionalMetadataJsonFile = resourceLoader.getResource(
-            CasConfigurationProperties.class.getClassLoader().getResource("META-INF/additional-spring-configuration-metadata.json").toString()
-        );
+        val additionalMetadataJsonFile = resourceLoader.getResource("META-INF/additional-spring-configuration-metadata.json");
         val additionalProps = getProperties(additionalMetadataJsonFile);
         for (val prop : additionalProps) {
             try {
@@ -64,7 +69,6 @@ public class AdditionalMetadataVerificationTests {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private Set<ConfigurationMetadataProperty> getProperties(final Resource jsonFile) throws IOException {
         val mapper = new ObjectMapper().findAndRegisterModules();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -74,6 +78,7 @@ public class AdditionalMetadataVerificationTests {
         val values = new TypeReference<Set<ConfigurationMetadataProperty>>() {
         };
         val reader = mapper.readerFor(values);
-        return (Set<ConfigurationMetadataProperty>) reader.readValue(propertiesNode);
+        val jsonSet = (Set) reader.readValue(propertiesNode);
+        return jsonSet;
     }
 }

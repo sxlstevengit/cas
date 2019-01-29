@@ -5,10 +5,8 @@ package org.apereo.cas.util.junit;
  *
  * @author Misagh Moayyed
  * @since 5.3.0
- * @deprecated Not needed with Junit5
  */
 @FunctionalInterface
-@Deprecated
 public interface IgnoreCondition {
     /**
      * Is satisfied.
